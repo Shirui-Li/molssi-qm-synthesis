@@ -1,3 +1,4 @@
+from turtle import shape
 import psi4
 import numpy as np
 
@@ -29,15 +30,21 @@ psi4.set_output_file(file_prefix + '_vibfreq.dat', False)
 scf_energy, scf_wfn = psi4.frequency('scf/cc-pVDZ', molecule=ch4, return_wfn=True, dertype='gradient')
 
 # Save "raw" frequencies into a variable
-print(scf_wfn.frequency_analysis) # this command is just to get you started!
+#print(scf_wfn.frequency_analysis) # this command is just to get you started!
+omega = scf_wfn.frequency_analysis['omega']
 
 # Eliminate imaginary parts of frequencies,
 # round the frequencies (to the nearest whole number),
+rounded = np.round(scf_wfn.frequency_analysis['omega'].data.real)
 # and extract only the *non-zero* frequencies
-
+nonzero = rounded[np.nonzero(rounded)]
 
 # Determine the unique non-zero frequencies and 
+unique,counts = np.unique(nonzero, return_counts=True)
+final_data = np.column_stack((unique,counts))
+np.savetxt('text', final_data, header='freq degen')
 # the number of times each such frequency occurs;
+
 # store these in a NumPy array in the format: 
 # {frequency, count} (i.e, one line per freq.)
 
